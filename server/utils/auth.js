@@ -1,23 +1,21 @@
-// authMiddleware.js
 
 const jwt = require('jsonwebtoken');
-// const { secret, expiration } = require('./config'); // Assuming you have a config file with secret and expiration
 const secret = 'mysecretsshhhhh';
 const expiration = '2h';
 module.exports = {
   authMiddleware: function (req, res, next) {
-    // Check if it's a GraphQL mutation
-      // Parse the mutation operation name
+
+   
       const operationName = req.body.operationName
       
-      // Exclude checking token for sign up mutation (addUser mutation)
-      if (operationName === 'addUser') {
+      if (operationName === 'addUser' || operationName === 'loginUser' ) {
         return next();
       }
     
 
-    const token = req.headers.authorization;
-
+      const authorizationHeader = req.headers.authorization || '';
+      const token = authorizationHeader.split(' ')[1]; 
+    console.log(token)
     if (!token) {
       return res.status(401).json({ message: 'You have no token!' });
     }

@@ -11,8 +11,14 @@ const SearchBooks = () => {
   const [searchInput, setSearchInput] = useState('');
   const [savedBookIds, setSavedBookIds] = useState(getSavedBookIds());
 
-  const [saveBook] = useMutation(SAVE_BOOK);
-
+  const [saveBook] = useMutation(SAVE_BOOK, {
+    context: {
+      headers: {
+        authorization: `Bearer ${Auth.getToken()}`
+      }
+    }
+  });
+  
   useEffect(() => {
     return () => saveBookIds(savedBookIds);
   });
@@ -50,9 +56,9 @@ const SearchBooks = () => {
 
   const handleSaveBook = async (bookId) => {
     const bookToSave = searchedBooks.find((book) => book.bookId === bookId);
-  
     const token = Auth.loggedIn() ? Auth.getToken() : null;
-  
+    console.log(token)
+
     if (!token) {
       return false;
     }

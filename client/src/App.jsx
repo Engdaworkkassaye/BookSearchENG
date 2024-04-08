@@ -2,11 +2,14 @@ import React from 'react';
 import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
 import { Outlet } from 'react-router-dom';
 import Navbar from './components/Navbar';
+import Auth from './utils/auth'; 
 
-// Create an ApolloClient instance
 const client = new ApolloClient({
   uri: 'http://localhost:3001/graphql',
-  cache: new InMemoryCache()
+  cache: new InMemoryCache(),
+  headers: {
+    authorization: Auth.getToken() ? `Bearer ${Auth.getToken()}` : '', 
+  },
 });
 
 function App() {

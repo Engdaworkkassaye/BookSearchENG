@@ -40,10 +40,47 @@ const resolvers = {
         }
       },
       
-    saveBook: async (parent, { bookData }, context) => {
-    },
-    removeBook: async (parent, { bookId }, context) => {
-    },
+      saveBook: async (parent, { bookData }, context) => {
+        const { user } = context;
+  
+        if (!user) {
+          throw new AuthenticationError('You need to be logged in to save a book.');
+        }
+  
+        try {
+          const updatedUser = await User.findByIdAndUpdate(
+            user._id,
+            { $addToSet: { savedBooks: bookData } }, 
+            { new: true }
+          );
+  
+          return updatedUser;
+        } catch (err) {
+          console.error(err);
+          throw new Error('Failed to save the book.');
+        }
+      }, removeBook: async (parent, { bookId }, context) => {
+        const { user } = context;
+  
+        if (!user) {
+          throw new AuthenticationError('You need to be logged in to remove a book.');
+        }
+  
+        try {
+          const updatedUser = await User.findByIdAndUpdate(
+            user._id,
+            { $pull: { savedBooks: { bookId } } },
+            { new: true }
+          );
+  
+          return updatedUser;
+        } catch (err) {
+          console.error(err);
+          throw new Error('Failed to remove the book.');
+        }
+      }
+    
+  
   },
 };
 

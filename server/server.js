@@ -1,9 +1,9 @@
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
 const { typeDefs, resolvers } = require('./schemas');
+const { authMiddleware } = require('./utils/auth'); 
 const cors = require('cors');
 const mongoose = require('mongoose');
-
 
 async function startServer() {
   const app = express();
@@ -12,18 +12,18 @@ async function startServer() {
   app.use(express.urlencoded({ extended: true })); 
   app.use(cors()); 
 
-
-await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/googlebooks', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+  await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/googlebooks', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
 
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: ({ req }) => {
-    },
+    context: ({ req }) => ({ user: req.user }), 
   });
+
+  app.use(authMiddleware);
 
   await server.start();
 
