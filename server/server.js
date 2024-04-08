@@ -1,25 +1,41 @@
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
-const { authMiddleware } = require('./utils/auth');
 const { typeDefs, resolvers } = require('./schemas');
+const cors = require('cors');
+const mongoose = require('mongoose');
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  context: ({ req }) => ({ req: req || {} }), // Ensure req is not undefined
+
+async function startServer() {
+  const app = express();
+
+  app.use(express.json()); 
+  app.use(express.urlencoded({ extended: true })); 
+  app.use(cors()); 
+
+
+await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/googlebooks', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
-const app = express();
-app.use(authMiddleware);
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context: ({ req }) => {
+    },
+  });
 
-async function startApolloServer() {
   await server.start();
+
   server.applyMiddleware({ app });
+
+  const PORT = process.env.PORT || 3001;
+
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}${server.graphqlPath}`);
+  });
 }
 
-startApolloServer();
-
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}${server.graphqlPath}`);
+startServer().catch(err => {
+  console.error('Error starting server:', err);
 });

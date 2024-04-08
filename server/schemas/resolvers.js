@@ -32,16 +32,14 @@ const resolvers = {
     addUser: async (parent, { username, email, password }) => {
         try {
           const user = await User.create({ username, email, password });
-          console.log(user)
-    
           const token = signToken({ username, email, _id: user._id });
-    
           return { token, user };
         } catch (error) {
           console.error('Error creating user:', error);
           throw new Error('Failed to create user.');
         }
       },
+      
     saveBook: async (parent, { bookData }, context) => {
     },
     removeBook: async (parent, { bookId }, context) => {
